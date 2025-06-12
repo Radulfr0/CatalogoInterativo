@@ -102,7 +102,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#293d09',
     paddingTop: 50,
     paddingHorizontal: 16,
   },
@@ -110,14 +110,14 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: '700',
     marginBottom: 16,
-    color: '#2c3e50',
+    color: '#99D64D',
     textAlign: 'center',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#293d09',
   },
   loadingText: {
     marginTop: 12,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#76993d',
     borderRadius: 12,
     padding: 12,
     marginBottom: 14,
@@ -154,12 +154,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#34495e',
+    color: '#000',
   },
   author: {
     marginTop: 4,
     fontSize: 14,
-    color: '#7f8c8d',
+    color: '#2e2e2e',
+    fontStyle: 'italic',
   },
 });
 
