@@ -135,13 +135,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#F0F9FF',
     paddingTop: 50, // Espaço para o cabeçalho e botão de voltar
   },
   header: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#1E3A8A',
     marginBottom: 20,
     textAlign: 'center',
     // marginTop: 10, // Removido ou ajustado, pois o paddingTop do container já dá espaço
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   bookItem: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#3B82F6',
     borderRadius: 10,
     padding: 10,
     marginBottom: 15,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 8,
     marginRight: 15,
-    backgroundColor: '#dfe6e9',
+    backgroundColor: '#3B82F6',
   },
   bookInfo: {
     flex: 1,
@@ -198,12 +198,12 @@ const styles = StyleSheet.create({
   bookTitle: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#1E3A8A',
     marginBottom: 5,
   },
   bookAuthor: {
     fontSize: 14,
-    color: '#7f8c8d',
+    color: '#93C5FD',
   },
   removeFavoriteButton: {
     padding: 10,

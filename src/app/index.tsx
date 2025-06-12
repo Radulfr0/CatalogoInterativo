@@ -236,12 +236,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#293d09",
+    backgroundColor: "#fff",
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: "#4682B4",
+    color: "#fff",
   },
   listContent: {
     paddingBottom: 30,
