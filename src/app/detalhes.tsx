@@ -397,21 +397,21 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     alignItems: 'center',
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#F0F9FF',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
-    color: '#2c3e50',
+    color: '#1E3A8A',
     paddingHorizontal: 10,
   },
   author: {
     fontSize: 18,
     fontStyle: 'italic',
     marginBottom: 20,
-    color: '#7f8c8d',
+    color: '#93C5FD',
     textAlign: 'center',
   },
   coverImage: {
@@ -429,13 +429,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#0A1F33',
     marginBottom: 10,
     alignSelf: 'flex-start', // Alinha o título da seção à esquerda
     paddingHorizontal: 10,
   },
   descriptionContainer: {
-    backgroundColor: '#ffffff',
+    color: '#3B82F6',
+    backgroundColor: '#3B82F6',
     borderRadius: 10,
     padding: 15,
     marginBottom: 20,
@@ -448,13 +449,13 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: 16,
-    color: '#34495e',
+    color: '#000',
     textAlign: 'justify',
     lineHeight: 24, // Melhora a legibilidade de textos longos
   },
   detailsText: {
     fontSize: 16,
-    color: '#34495e',
+    color: '#000',
     marginBottom: 8,
     textAlign: 'center',
   },
@@ -468,7 +469,7 @@ const styles = StyleSheet.create({
   favoriteButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#2563EB',
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 20,
@@ -481,11 +482,11 @@ const styles = StyleSheet.create({
   favoriteButtonText: {
     marginLeft: 8,
     fontSize: 16,
-    color: '#34495e',
+    color: '#0A1F33',
     fontWeight: 'bold',
   },
   backButton: {
-    backgroundColor: '#4682B4',
+    backgroundColor: '#3B82F6',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 25,
@@ -498,7 +499,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   backButtonText: {
-    color: '#ffffff',
+    color: '#0A1F33',
     fontSize: 18,
     fontWeight: 'bold',
   },
