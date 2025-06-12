@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-// 1. Importar o hook 'router' do expo-router
-import { router } from "expo-router";
+import React, { useEffect, useState, useCallback } from 'react';
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { router, useFocusEffect } from "expo-router"; // Importar useFocusEffect para recarregar favoritos
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importar AsyncStorage
+import { Ionicons } from '@expo/vector-icons'; // Importar Ionicons para ícones
 
 // Tipagem dos livros
 type Book = {
@@ -11,10 +12,42 @@ type Book = {
   authors?: { name: string }[];
 };
 
+const FAVORITES_KEY = '@MyApp:favorites'; // Chave para AsyncStorage, usada em todo o app
+
 const HomeScreen = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  // Usamos um Set para verificar rapidamente se um livro é favorito (melhor performance para listas grandes)
+  const [favoriteBooksKeys, setFavoriteBooksKeys] = useState<Set<string>>(new Set());
 
+  // Função para carregar as chaves dos livros favoritados do AsyncStorage
+  const loadFavorites = useCallback(async () => {
+    try {
+      const favorites = await AsyncStorage.getItem(FAVORITES_KEY);
+      if (favorites) {
+        const parsedFavorites: Book[] = JSON.parse(favorites);
+        // Mapeia os favoritos para um Set de suas chaves para fácil lookup
+        setFavoriteBooksKeys(new Set(parsedFavorites.map(book => book.key)));
+      } else {
+        setFavoriteBooksKeys(new Set()); // Garante que esteja vazio se não houver favoritos
+      }
+    } catch (error) {
+      console.error("Erro ao carregar favoritos:", error);
+    }
+  }, []); // Dependência vazia, pois não depende de nenhum estado externo
+
+  // Usa useFocusEffect para carregar/recarregar os favoritos sempre que a tela HomeScreen for focada.
+  // Isso garante que os ícones de coração estejam atualizados se o status de favorito for alterado em DetalhesScreen ou FavoritesScreen.
+  useFocusEffect(
+    useCallback(() => {
+      loadFavorites();
+      return () => {
+        // Nenhuma limpeza específica necessária aqui para este caso.
+      };
+    }, [loadFavorites]) // Recarrega sempre que a função loadFavorites for atualizada (embora useCallback a estabilize)
+  );
+
+  // Função para buscar os livros da API
   const fetchBooks = async () => {
     try {
       const response = await fetch(
@@ -24,6 +57,7 @@ const HomeScreen = () => {
       setBooks(json.works || []);
     } catch (error) {
       console.error('Error fetching books:', error);
+      Alert.alert("Erro", "Não foi possível carregar a lista de livros.");
     } finally {
       setLoading(false);
     }
@@ -31,22 +65,56 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchBooks();
-  }, []);
+  }, []); // Executa apenas uma vez ao montar o componente
 
-  // 2. Função para navegar para detalhes usando router.navigate
+  // Função para navegar para a tela de detalhes do livro
   function handleNavigateDetalhes(book: Book) {
-    // 3. Passa o objeto como parâmetro de rota
     router.navigate({
-      pathname: "/detalhes",
+      pathname: "/detalhes", // Verifique se o nome da rota está correto (deve ser o mesmo que o arquivo DetalhesScreen.tsx)
       params: { book: JSON.stringify(book) }
     });
   }
 
+  // Função para adicionar ou remover um livro dos favoritos
+  const toggleFavorite = useCallback(async (book: Book) => {
+    try {
+      const favorites = await AsyncStorage.getItem(FAVORITES_KEY);
+      let parsedFavorites: Book[] = favorites ? JSON.parse(favorites) : [];
+      const isCurrentlyFavorite = favoriteBooksKeys.has(book.key);
+
+      if (isCurrentlyFavorite) {
+        // Se já for favorito, remove-o da lista
+        parsedFavorites = parsedFavorites.filter(favBook => favBook.key !== book.key);
+        Alert.alert("Sucesso", `"${book.title}" removido dos favoritos.`);
+      } else {
+        // Se não for favorito, adiciona-o à lista
+        parsedFavorites.push(book);
+        Alert.alert("Sucesso", `"${book.title}" adicionado aos favoritos!`);
+      }
+      // Salva a lista atualizada de volta no AsyncStorage
+      await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(parsedFavorites));
+      // Atualiza o Set de chaves favoritas para re-renderizar a FlatList com o ícone correto
+      setFavoriteBooksKeys(new Set(parsedFavorites.map(favBook => favBook.key)));
+    } catch (error) {
+      console.error("Erro ao alternar favorito:", error);
+      Alert.alert("Erro", "Não foi possível atualizar seus favoritos.");
+    }
+  }, [favoriteBooksKeys]); // Depende de favoriteBooksKeys para que a função tenha acesso ao estado mais recente
+
+  // Função para navegar para a tela de livros favoritos
+  const navigateToFavorites = () => {
+    router.push('/FavoritesScreen'); // Verifique se o nome da rota está correto (deve ser o mesmo que o arquivo favoritesScreen.tsx)
+  };
+
+  // Renderiza cada item da lista de livros
   const renderItem = ({ item }: { item: Book }) => {
     const coverId = item.cover_id;
     const imageUrl = coverId
       ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`
       : 'https://via.placeholder.com/100x150.png?text=No+Image';
+
+    // Verifica se o livro atual está no Set de chaves favoritas para determinar o ícone
+    const isFavorite = favoriteBooksKeys.has(item.key);
 
     return (
       <TouchableOpacity
@@ -64,6 +132,20 @@ const HomeScreen = () => {
             </Text>
           )}
         </View>
+        {/* Botão de Favoritar por item */}
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation(); // Impede que o clique no coração acione a navegação para detalhes do livro
+            toggleFavorite(item); // Chama a função para alternar o status de favorito
+          }}
+          style={styles.favoriteButtonPerItem}
+        >
+          <Ionicons
+            name={isFavorite ? 'heart' : 'heart-outline'} // Ícone de coração preenchido ou contorno
+            size={24}
+            color={isFavorite ? '#e74c3c' : '#bdc3c7'} // Cor vermelha para favorito, cinza para não favorito
+          />
+        </TouchableOpacity>
       </TouchableOpacity>
     );
   };
@@ -87,7 +169,14 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Livros de Ficção Científica</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>Livros de Ficção Científica</Text>
+        {/* Botão Geral para Ver Favoritos */}
+        <TouchableOpacity style={styles.viewFavoritesButton} onPress={navigateToFavorites}>
+          <Ionicons name="bookmark-outline" size={24} color="#FFF" />
+          <Text style={styles.viewFavoritesButtonText}>Favoritos</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={books}
         keyExtractor={(item) => item.key}
@@ -106,12 +195,37 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 16,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   header: {
     fontSize: 26,
     fontWeight: '700',
-    marginBottom: 16,
     color: '#99D64D',
-    textAlign: 'center',
+    flex: 1, // Permite que o texto ocupe o espaço disponível
+    textAlign: 'left', // Alinha o texto à esquerda por padrão
+  },
+  viewFavoritesButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4682B4', // Azul para o botão de favoritos
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  viewFavoritesButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 5,
   },
   loadingContainer: {
     flex: 1,
@@ -161,6 +275,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2e2e2e',
     fontStyle: 'italic',
+  },
+  favoriteButtonPerItem: {
+    padding: 8,
+    marginLeft: 10,
   },
 });
 
